@@ -58,3 +58,6 @@ nunit-*.xml
 
 #env
 .env
+
+#DLL's net10.0
+net10.0/
