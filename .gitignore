@@ -55,6 +55,7 @@ nunit-*.xml
 
 #database
 *.db
+*.db* 
 
 #env
 .env

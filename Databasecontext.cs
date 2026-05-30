@@ -56,6 +56,16 @@ namespace nomination_api.DataBaseContext
             .HasForeignKey(n => n.CategoryId)
             .HasPrincipalKey(c => c.CategoryId)
             .OnDelete(DeleteBehavior.Restrict);
+
+            // Errors with FKEY references, due to statically declaring a default Admin/Role
+            var guidConverter = new Microsoft.EntityFrameworkCore.Storage.ValueConversion.GuidToStringConverter();
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            {
+                foreach (var property in entityType.GetProperties().Where(p => p.ClrType == typeof(Guid)))
+                {
+                    property.SetValueConverter(guidConverter);
+                }
+            }
         }
 
         public DbSet<Nomination> Nominations { get; set; }

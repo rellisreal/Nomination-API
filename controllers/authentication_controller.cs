@@ -49,10 +49,10 @@ public class AuthenticationController : ControllerBase
 
     }
     [HttpPost("{username}/{password}")]
-    public async Task<ActionResult<User>> LoginAdmin(string username, string password)
+    public async Task<ActionResult<Boolean>> LoginAdmin(string username, string password)
     {
         var user_account = FindUser(username); 
-        if (user_account == null)
+        if (user_account == null || user_account.Role == null)
         {
             return NotFound();
         }
@@ -60,7 +60,7 @@ public class AuthenticationController : ControllerBase
 
         var passhash = new PasswordHasher();  
         string hashed_password = passhash.HashPassword(password);
-        if (hashed_password == user_account.UserPassword && user_account.Role.RoleName.ToString().Equals("Admin")) {
+        if (hashed_password == user_account.UserPassword && user_account.Role.RoleName.Equals("Admin")){
 
             // Create the identity for the user
             var identity = new ClaimsIdentity(new[]
@@ -72,7 +72,7 @@ public class AuthenticationController : ControllerBase
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
             eventManager.AdminLoginEvent("Admin Login", user_account, _context);
             
-            return Ok(user_account);
+            return Ok(true);
         }   
         return Unauthorized();
     }

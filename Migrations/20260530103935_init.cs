@@ -8,6 +8,8 @@ namespace nomination_api.Migrations
     /// <inheritdoc />
     public partial class init : Migration
     {
+        static readonly Guid roleGuid = new Guid("a1b2c3d4-e5f6-7890-abcd-ef1234567890");
+        static readonly Guid userGuid = new Guid("b2c3d4e5-f6a7-8901-bcde-f12345678901");
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -146,11 +148,31 @@ namespace nomination_api.Migrations
                 table: "Users",
                 column: "UserName",
                 unique: true);
+
+            migrationBuilder.Sql($@"
+                INSERT INTO Roles (RoleId, RoleName) 
+                VALUES ('{roleGuid}', 'Admin')");
+
+            migrationBuilder.Sql($@"
+                INSERT INTO Users (UserId, UserName, Email, UserPassword, RoleId, UserCreatedDate, UserLastUpdated) 
+                VALUES ('{userGuid}', 'Admin', 'Admin@admin.com', '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', '{roleGuid}', '{DateTime.Now}', '{DateTime.Now}')");
         }
+
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+
+            migrationBuilder.DeleteData(
+                table: "Roles",
+                keyColumn: "RoleId",
+                keyValue: $@"{roleGuid}"
+            ); 
+            migrationBuilder.DeleteData(
+                table: "Users",
+                keyColumn: "UserId",
+                keyValue: $@"{userGuid}"
+            ); 
             migrationBuilder.DropTable(
                 name: "Events");
 
