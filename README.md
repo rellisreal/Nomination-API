@@ -5,6 +5,7 @@ A .Net 10 API that works with the Nomination Public Front-End & Nomination Admin
 
 ## Local Configuration Steps: 
 - PENDING
+- dotnet ef database update
 
 
 ## Running: 

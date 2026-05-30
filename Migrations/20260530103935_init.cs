@@ -6,18 +6,30 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace nomination_api.Migrations
 {
     /// <inheritdoc />
-    public partial class Updated_Again_ID : Migration
+    public partial class init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "Categories",
+                columns: table => new
+                {
+                    CategoryId = table.Column<long>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    CategoryName = table.Column<string>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Categories", x => x.CategoryId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Roles",
                 columns: table => new
                 {
                     RoleId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    RoleName = table.Column<string>(type: "TEXT", nullable: false),
-                    RoleAccessList = table.Column<string>(type: "TEXT", nullable: false)
+                    RoleName = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -73,15 +85,23 @@ namespace nomination_api.Migrations
                 columns: table => new
                 {
                     NominationId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Format = table.Column<bool>(type: "INTEGER", nullable: false),
+                    Formal = table.Column<bool>(type: "INTEGER", nullable: false),
+                    NominationMessage = table.Column<string>(type: "TEXT", nullable: false),
                     NominatorId = table.Column<Guid>(type: "TEXT", nullable: false),
                     NominatedId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CategoryId = table.Column<long>(type: "INTEGER", nullable: false),
                     NominationDate = table.Column<DateTime>(type: "TEXT", nullable: false),
                     NominationLastModified = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Nominations", x => x.NominationId);
+                    table.ForeignKey(
+                        name: "FK_Nominations_Categories_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "Categories",
+                        principalColumn: "CategoryId",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Nominations_Users_NominatedId",
                         column: x => x.NominatedId,
@@ -102,6 +122,11 @@ namespace nomination_api.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Nominations_CategoryId",
+                table: "Nominations",
+                column: "CategoryId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Nominations_NominatedId",
                 table: "Nominations",
                 column: "NominatedId");
@@ -115,6 +140,12 @@ namespace nomination_api.Migrations
                 name: "IX_Users_RoleId",
                 table: "Users",
                 column: "RoleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_UserName",
+                table: "Users",
+                column: "UserName",
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -125,6 +156,9 @@ namespace nomination_api.Migrations
 
             migrationBuilder.DropTable(
                 name: "Nominations");
+
+            migrationBuilder.DropTable(
+                name: "Categories");
 
             migrationBuilder.DropTable(
                 name: "Users");

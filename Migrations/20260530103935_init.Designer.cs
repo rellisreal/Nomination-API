@@ -11,14 +11,28 @@ using nomination_api.DataBaseContext;
 namespace nomination_api.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20260411124912_Updated_Again_ID")]
-    partial class Updated_Again_ID
+    [Migration("20260530103935_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.5");
+
+            modelBuilder.Entity("nomination_api.models.Category", b =>
+                {
+                    b.Property<long>("CategoryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("CategoryName")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("CategoryId");
+
+                    b.ToTable("Categories");
+                });
 
             modelBuilder.Entity("nomination_api.models.Event", b =>
                 {
@@ -51,7 +65,10 @@ namespace nomination_api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<bool>("Format")
+                    b.Property<long>("CategoryId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("Formal")
                         .HasColumnType("INTEGER");
 
                     b.Property<Guid>("NominatedId")
@@ -63,10 +80,16 @@ namespace nomination_api.Migrations
                     b.Property<DateTime>("NominationLastModified")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("NominationMessage")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid>("NominatorId")
                         .HasColumnType("TEXT");
 
                     b.HasKey("NominationId");
+
+                    b.HasIndex("CategoryId");
 
                     b.HasIndex("NominatedId");
 
@@ -79,10 +102,6 @@ namespace nomination_api.Migrations
                 {
                     b.Property<Guid>("RoleId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.PrimitiveCollection<string>("RoleAccessList")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("RoleName")
@@ -126,6 +145,9 @@ namespace nomination_api.Migrations
 
                     b.HasIndex("RoleId");
 
+                    b.HasIndex("UserName")
+                        .IsUnique();
+
                     b.ToTable("Users");
                 });
 
@@ -142,6 +164,12 @@ namespace nomination_api.Migrations
 
             modelBuilder.Entity("nomination_api.models.Nomination", b =>
                 {
+                    b.HasOne("nomination_api.models.Category", "Category")
+                        .WithMany("NominationsInCategory")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("nomination_api.models.User", "Nominated")
                         .WithMany("NominationsReceived")
                         .HasForeignKey("NominatedId")
@@ -153,6 +181,8 @@ namespace nomination_api.Migrations
                         .HasForeignKey("NominatorId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Category");
 
                     b.Navigation("Nominated");
 
@@ -168,6 +198,11 @@ namespace nomination_api.Migrations
                         .IsRequired();
 
                     b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("nomination_api.models.Category", b =>
+                {
+                    b.Navigation("NominationsInCategory");
                 });
 
             modelBuilder.Entity("nomination_api.models.Role", b =>
